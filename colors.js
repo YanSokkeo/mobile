@@ -1,0 +1,17 @@
+export default colors = {
+  blue: '#1f2770',
+  whitebackground: '#fcfdff',
+  deepBlue: '#1E276F',
+  lightGrey: '#6a6b7d',
+  lightBlue: '#e8eaff',
+  lightAbitBlue: '#121953',
+  white: '#FBFDFF',
+  gold: '#ffd601',
+  sliver: '#bebebe',
+  brown: '#cb7f33',
+  lightWhite: '#FBFDFF',
+  grey: '#686A7B',
+  backgroundWhite: '#E8EAF6',
+  runTimeColor: '#121953',
+  red: '#EF5350',
+};
