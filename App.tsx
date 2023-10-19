@@ -31,10 +31,15 @@ import TestGrougBy from './src/screens/TestGrougBy';
 import SecondQuestion from './src/screens/SecondQuestion';
 import SecondGroupBy from './src/screens/SecondGroupBy';
 import FromBing from './src/screens/QuestionFetch';
+import Helloss from './src/screens/Helloss';
+import TestApi from './src/screens/TestApi';
 
 const App = () => {
   return (
+    // <Text>Helo</Text>
+    // <Helloss />
     <StackNavigator />
+    // <TestApi />
     // <JoinData />
     // <SecondGroupBy />
     // <NavigationContainer>

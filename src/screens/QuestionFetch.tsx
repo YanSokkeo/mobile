@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {FlatList, Text, TouchableOpacity, View, StyleSheet} from 'react-native';
 import PocketBase from 'pocketbase';
 import colors from '../../colors';
+import {client} from '../api/Pocketbase';
 import {
   CurrentRenderContext,
   useFocusEffect,
@@ -42,19 +43,41 @@ const QuestionFetch = () => {
   let interval: any;
   let timer: any;
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const pb = new PocketBase('http://10.0.2.2:8090');
+  //     // const pb = new PocketBase('http://127.0.0.1:8090');
+  //     try {
+  //       const records: Array<RecordModel> = await pb
+  //         .collection('completed')
+  //         .getFullList();
+  //       const correctAnswers: Array<Array<boolean>> = records.map(
+  //         (record: RecordModel) =>
+  //           record.isAnswers.split(',').map((value: string) => value === '1'),
+  //       );
+  //       setCorrectAnswers(correctAnswers);
+  //       console.log(records);
+  //       console.log('hello');
+  //       setData(records);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
+
   useEffect(() => {
     const fetchData = async () => {
-      const pb = new PocketBase('http://10.0.2.2:8090');
       try {
-        const records: Array<RecordModel> = await pb
+        const records: Array<RecordModel> = await client
           .collection('completed')
+          // .collection('Testin1')
           .getFullList();
         const correctAnswers: Array<Array<boolean>> = records.map(
           (record: RecordModel) =>
-            record.isAnswers.split(',').map((value: string) => value === '1'),
+            record.isAnswers.split(';').map((value: string) => value === '1'),
         );
         setCorrectAnswers(correctAnswers);
-        // console.log(records);
         setData(records);
       } catch (error) {
         console.log(error);
@@ -107,7 +130,7 @@ const QuestionFetch = () => {
 
     if (currentQuestion && correctAnswer) {
       const answerIndex = currentQuestion.answers
-        .split(',')
+        .split(';')
         .findIndex(item => item.trim() === answer.trim());
       const isAnswerTrue = correctAnswer[answerIndex];
       setIsAnswerCorrect(isAnswerTrue);
@@ -154,7 +177,7 @@ const QuestionFetch = () => {
           {question.question}
         </Text>
         <FlatList
-          data={question.answers.split(',')}
+          data={question.answers.split(';')}
           renderItem={({item}) => (
             <TouchableOpacity
               style={{
