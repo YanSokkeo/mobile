@@ -9,11 +9,12 @@ interface Props {
   rightColor?: string;
   text: string;
   onPress?: () => void;
+  disable?: boolean;
 }
 
 const CustomNextPreview: React.FC<Props> = props => {
   return (
-    <TouchableOpacity onPress={props.onPress}>
+    <TouchableOpacity onPress={props.onPress} disabled={props.disable}>
       <View style={styles.button}>
         <Icon name={props.iconLeft} size={30} color={props.leftColor} />
         <Text style={styles.text}> {props.text} </Text>

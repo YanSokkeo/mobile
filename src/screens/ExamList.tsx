@@ -36,7 +36,8 @@ const ExamList = () => {
                 iconName="play"
                 // onPress={() => navigation.navigate('question')}
                 // onPress={() => navigation.navigate('secondQuestion')}
-                onPress={() => navigation.navigate('fetchQuestion')}
+                // onPress={() => navigation.navigate('fetchQuestion')}
+                onPress={() => navigation.navigate('questionfetch')}
               />
             </View>
           ))}

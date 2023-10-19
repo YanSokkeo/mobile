@@ -1,10 +1,18 @@
 import {StyleSheet, Text, View, Modal, TouchableOpacity} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import colors from '../../../colors';
 import Quiz from '../dummy/Quiz';
+import PocketBase from 'pocketbase';
 
 const data = Quiz;
+interface RecordModel {
+  isAnswers: any;
+  id: number;
+  question: string;
+  answers: string;
+  index_of_question: number;
+}
 
 const ModalPopup = ({visible, children}: any) => {
   const [showModal, setShowModal] = React.useState(false);
@@ -19,10 +27,27 @@ const ModalPopup = ({visible, children}: any) => {
 
 const ModalList = () => {
   const [visible, setVisible] = React.useState(false);
+  const [numberData, setNumberData] = useState<Array<RecordModel>>([]);
 
-  const controlView = data.map(question => (
-    <TouchableOpacity key={question.byOrder} style={[styles.controll_box]}>
-      <Text style={styles.text}>{question.byOrder}</Text>
+  useEffect(() => {
+    const fetchData = async () => {
+      const pb = new PocketBase('http://10.0.2.2:8090');
+      try {
+        const records: Array<RecordModel> = await pb
+          .collection('completed')
+          .getFullList();
+        // console.log(records);
+        setNumberData(records);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const controlView = numberData.map(question => (
+    <TouchableOpacity key={question.id} style={[styles.controll_box]}>
+      <Text style={styles.text}>{question.index_of_question}</Text>
     </TouchableOpacity>
   ));
 

@@ -12,6 +12,10 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Result from '../screens/Result';
 import SecondQuestion from '../screens/SecondQuestion';
 import TestFetchQuestion from '../screens/TestFetchQuestion';
+import FromBing from '../screens/QuestionFetch';
+import Hello from '../screens/FetchResult';
+import QuestionFetch from '../screens/QuestionFetch';
+import FetchResult from '../screens/FetchResult';
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -27,6 +31,8 @@ const StackNavigator = () => {
         <Stack.Screen name="question" component={Question} />
         <Stack.Screen name="secondQuestion" component={SecondQuestion} />
         <Stack.Screen name="fetchQuestion" component={TestFetchQuestion} />
+        <Stack.Screen name="questionfetch" component={QuestionFetch} />
+        <Stack.Screen name="fetchResult" component={FetchResult} />
         <Stack.Screen name="result" component={Result} />
       </Stack.Navigator>
     </NavigationContainer>

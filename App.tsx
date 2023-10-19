@@ -30,14 +30,16 @@ import JoinData from './src/screens/JoinData';
 import TestGrougBy from './src/screens/TestGrougBy';
 import SecondQuestion from './src/screens/SecondQuestion';
 import SecondGroupBy from './src/screens/SecondGroupBy';
-import FromBing from './src/screens/FromBing';
+import FromBing from './src/screens/QuestionFetch';
 
 const App = () => {
   return (
-    // <StackNavigator />
+    <StackNavigator />
     // <JoinData />
     // <SecondGroupBy />
-    <FromBing />
+    // <NavigationContainer>
+    //   <FromBing />
+    // </NavigationContainer>
     // <TestGrougBy />
     // <QuestionAnswerList />
     // <NavigationContainer>
@@ -48,6 +50,7 @@ const App = () => {
     // <Testing />
     // <TestingSecond />
     // <TestFetchQuestion />
+    // <ModalList />
   );
 };
 
