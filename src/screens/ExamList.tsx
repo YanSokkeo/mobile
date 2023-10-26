@@ -1,14 +1,27 @@
-import {StyleSheet, Text, View, ScrollView} from 'react-native';
-import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
+import React, {useState} from 'react';
 import CustomHeader from '../components/header/CustomHeader';
 import colors from '../../colors';
 import ExamDone from '../components/exam/ExamDone';
 import BigExamDone from '../components/exam/BigExamDone';
 import AllExam from '../components/dummy/AllExam';
 import {useNavigation} from '@react-navigation/native';
+import TestCategory from './TestCategory';
 
 const ExamList = () => {
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleDataFetch = () => {
+    setIsLoading(false);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.head}>
@@ -24,36 +37,7 @@ const ExamList = () => {
           <Text style={styles.subtitle}>12th MIPA 2</Text>
         </View>
       </View>
-
-      <View style={styles.controllView}>
-        <ScrollView contentContainerStyle={styles.scrollViewContentContainer}>
-          {AllExam.map((item, index) => (
-            <View style={styles.examContainer} key={index}>
-              <BigExamDone
-                image={item.image}
-                title={item.text}
-                subtitle={item.time}
-                iconName="play"
-                // onPress={() => navigation.navigate('question')}
-                // onPress={() => navigation.navigate('secondQuestion')}
-                // onPress={() => navigation.navigate('fetchQuestion')}
-                onPress={() => navigation.navigate('questionfetch')}
-              />
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-      <View style={styles.controllBottom}>
-        <View style={styles.textcontainer}>
-          <Text style={styles.title2}>Last exam done</Text>
-        </View>
-        <ExamDone
-          image={require('../../assets/images/GroupDone.png')}
-          title="Physics daily quiz"
-          subtitle="45 Minutes"
-          iconName="check"
-        />
-      </View>
+      <TestCategory />
     </View>
   );
 };

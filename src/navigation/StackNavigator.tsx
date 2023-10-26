@@ -16,6 +16,10 @@ import FromBing from '../screens/QuestionFetch';
 import Hello from '../screens/FetchResult';
 import QuestionFetch from '../screens/QuestionFetch';
 import FetchResult from '../screens/FetchResult';
+import TestCategory from '../screens/TestCategory';
+import JavaScriptQuestion from '../screens/JavaScriptQuestion';
+import TestCorrect from '../testing/TestCorrect';
+import TestRe from '../testing/TestRe';
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -32,6 +36,10 @@ const StackNavigator = () => {
         <Stack.Screen name="secondQuestion" component={SecondQuestion} />
         <Stack.Screen name="fetchQuestion" component={TestFetchQuestion} />
         <Stack.Screen name="questionfetch" component={QuestionFetch} />
+        <Stack.Screen name="testCategory" component={TestCategory} />
+        <Stack.Screen name="jsQuestion" component={JavaScriptQuestion} />
+        <Stack.Screen name="testCorrect" component={TestCorrect} />
+        <Stack.Screen name="testRe" component={TestRe} />
         <Stack.Screen name="fetchResult" component={FetchResult} />
         <Stack.Screen name="result" component={Result} />
       </Stack.Navigator>

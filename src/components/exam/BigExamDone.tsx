@@ -11,10 +11,12 @@ import colors from '../../../colors';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface Props {
-  title: string;
-  subtitle: string;
-  image: ImageSourcePropType;
-  iconName: string;
+  title?: String;
+  subtitle?: String;
+  // image: ImageSourcePropType;
+  image?: String;
+  time?: String;
+  iconName?: String;
   onPress?: () => void;
 }
 
@@ -31,7 +33,8 @@ const BigExamDone: React.FC<Props> = props => {
               borderRadius: 10,
               backgroundColor: colors.deepBlue,
             }}
-            source={props.image}
+            // source={props.image}
+            source={{uri: props.image}}
           />
         </View>
         <View style={styles.textcontainer}>

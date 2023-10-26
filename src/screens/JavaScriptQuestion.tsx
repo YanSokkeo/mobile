@@ -30,7 +30,7 @@ interface RecordModel {
   answers: string;
 }
 
-const QuestionFetch = () => {
+const JavaScriptQuestion = () => {
   const navigation = useNavigation();
   const [data, setData] = useState<Array<RecordModel>>([]);
   const [showAlert, setShowAlert] = useState(false);
@@ -80,7 +80,8 @@ const QuestionFetch = () => {
     const fetchData = async () => {
       try {
         const records: Array<RecordModel> = await client
-          .collection('completed')
+          .collection('Js_query')
+          // .collection('Testin1')
           .getFullList();
         const correctAnswers: Array<Array<boolean>> = records.map(
           (record: RecordModel) =>
@@ -88,6 +89,7 @@ const QuestionFetch = () => {
         );
         setCorrectAnswers(correctAnswers);
         setData(records);
+        // console.log(records);
       } catch (error) {
         console.log(error);
       }
@@ -99,8 +101,8 @@ const QuestionFetch = () => {
 
   useEffect(() => {
     const backAction = () => {
-      setShowAlert(true);
-      return true;
+      setShowAlert(true); 
+      return true; 
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -114,12 +116,12 @@ const QuestionFetch = () => {
   }, []);
 
   const handleConfirmLeave = () => {
-    navigation.goBack();
-    setShowAlert(false);
+    navigation.goBack(); 
+    setShowAlert(false); 
   };
 
   const handleCancelLeave = () => {
-    setShowAlert(false);
+    setShowAlert(false); 
   };
 
   ///////
@@ -151,7 +153,7 @@ const QuestionFetch = () => {
 
   useEffect(() => {
     return () => {
-      clearTimeout(interval);
+      clearTimeout(interval); 
     };
   }, []);
 
@@ -259,35 +261,6 @@ const QuestionFetch = () => {
             width: '100%',
           }}
         />
-        {/* <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <TouchableOpacity
-            onPress={handlePrevQuestion}
-            style={{
-              width: '30%',
-              height: 50,
-              backgroundColor: colors.gold,
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 10,
-              opacity: isFirstQuestion ? 0.5 : 1,
-            }}
-            disabled={isFirstQuestion}>
-            <Text style={{color: colors.grey}}>Previous</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleNextQuestion}
-            style={{
-              width: '30%',
-              height: 50,
-              backgroundColor: colors.gold,
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 10,
-              // opacity: isLastQuestion ? 0.5 : 1,
-            }}>
-            <Text style={{color: colors.grey}}>Next</Text>
-          </TouchableOpacity>
-        </View> */}
       </View>
     );
   };
@@ -371,7 +344,7 @@ const QuestionFetch = () => {
   );
 };
 
-export default QuestionFetch;
+export default JavaScriptQuestion;
 const styles = StyleSheet.create({
   container: {
     flex: 1,

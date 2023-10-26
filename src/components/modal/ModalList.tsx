@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import colors from '../../../colors';
 import Quiz from '../dummy/Quiz';
 import PocketBase from 'pocketbase';
+import {client} from '../../api/Pocketbase';
 
 const data = Quiz;
 interface RecordModel {
@@ -12,6 +13,14 @@ interface RecordModel {
   question: string;
   answers: string;
   index_of_question: number;
+}
+interface QuestionModel {
+  quiz_id: string;
+  id: string;
+  question: string;
+  index_of_question: string;
+  answers: string[];
+  correct_answer: string;
 }
 
 const ModalPopup = ({visible, children}: any) => {
@@ -25,18 +34,17 @@ const ModalPopup = ({visible, children}: any) => {
   );
 };
 
-const ModalList = () => {
+const ModalList = ({questionData}: {questionData: Array<QuestionModel>}) => {
   const [visible, setVisible] = React.useState(false);
   const [numberData, setNumberData] = useState<Array<RecordModel>>([]);
+  const [data, setData] = useState<Array<QuestionModel>>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const pb = new PocketBase('http://10.0.2.2:8090');
       try {
-        const records: Array<RecordModel> = await pb
+        const records: Array<RecordModel> = await client
           .collection('completed')
           .getFullList();
-        // console.log(records);
         setNumberData(records);
       } catch (error) {
         console.log(error);
@@ -45,7 +53,7 @@ const ModalList = () => {
     fetchData();
   }, []);
 
-  const controlView = numberData.map(question => (
+  const controlView = questionData.map(question => (
     <TouchableOpacity key={question.id} style={[styles.controll_box]}>
       <Text style={styles.text}>{question.index_of_question}</Text>
     </TouchableOpacity>

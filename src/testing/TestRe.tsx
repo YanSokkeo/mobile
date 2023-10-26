@@ -1,107 +1,43 @@
+import {useNavigation} from '@react-navigation/native';
+import React from 'react';
 import {
-  StyleSheet,
-  Text,
   View,
+  Text,
+  StyleSheet,
+  ScrollView,
   TouchableOpacity,
-  BackHandler,
 } from 'react-native';
-import React, {useEffect} from 'react';
 import colors from '../../colors';
-import {RouteProp, useNavigation} from '@react-navigation/native';
 import HeaderBackground from '../components/header/HeaderBackground';
 
-type HelloScreenParams = {
-  route: RouteProp<{Hello: {point: number; answers: boolean[]}}>;
-};
-
-const FetchResult: React.FC<HelloScreenParams> = ({route}) => {
-  const {point, answers} = route.params;
+const TestRe = ({route}: any) => {
   const navigation = useNavigation();
-
-  let trueCount = 0;
-  let falseCount = 0;
-  answers.forEach(answer => {
-    if (answer) {
-      trueCount++;
-    } else {
-      falseCount++;
-    }
-  });
-
-  const totalCount = trueCount + falseCount;
-  const truePercentage = (trueCount / totalCount) * 100;
-
-  useEffect(() => {
-    const backAction = () => {
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
-
-    return () => {
-      backHandler.remove();
-    };
-  }, []);
+  const {answers, userAnswers, isAnswerCorrect, point} = route.params;
 
   const handleContinue = () => {
     navigation.navigate('tabNavigation');
   };
+  let trueCount = 0;
+  let falseCount = 0;
+  const filteredAnswers = answers.filter(
+    (answer: any) => answer === true || answer === false,
+  );
+  filteredAnswers.forEach((answer: any) => {
+    if (answer === true) {
+      trueCount++;
+    } else if (answer === false) {
+      falseCount++;
+    }
+  });
+  const totalCount = trueCount + falseCount;
+  const truePercentage = (trueCount / totalCount) * 100;
 
-  const renderAnswerList = () => {
-    const filteredAnswers = answers.filter(
-      answer => answer !== null && answer !== undefined,
-    );
+  console.log('True count:', trueCount);
+  console.log('False count:', falseCount);
+  console.log('Total count:', totalCount);
 
-    return (
-      <View style={styles.answerContainer}>
-        {filteredAnswers.map((answer, index) => {
-          const displayIndex = index + 1;
-          const answerText = answer ? 'true' : 'false';
-
-          return (
-            <Text key={index} style={styles.answerText}>
-              {displayIndex}. {answerText}
-            </Text>
-          );
-        })}
-      </View>
-    );
-  };
-
-  // const renderAnswerList = () => {
-  //   const rows = [];
-  //   const totalAnswers = answers.length;
-
-  //   for (let i = 0; i < totalAnswers; i += 2) {
-  //     const answer1 = answers[i];
-  //     const answer2 = i + 1 < totalAnswers ? answers[i + 1] : null;
-
-  //     const displayIndex1 = i + 1;
-  //     const displayIndex2 = i + 2;
-
-  //     const answerText1 = answer1 ? 'true' : 'false';
-  //     const answerText2 = answer2 ? 'true' : 'false';
-
-  //     rows.push(
-  //       <View key={i} style={styles.answerRow}>
-  //         <Text style={styles.answerText}>
-  //           {displayIndex1}. {answerText1}
-  //         </Text>
-  //         {answer2 && (
-  //           <Text style={styles.answerText}>
-  //             {displayIndex2}. {answerText2}
-  //           </Text>
-  //         )}
-  //       </View>,
-  //     );
-  //   }
-
-  //   return rows;
-  // };
-
+  console.log(filteredAnswers);
+  //   console.log(answers);
   return (
     <View style={styles.container}>
       <View style={styles.navigator}>
@@ -127,9 +63,26 @@ const FetchResult: React.FC<HelloScreenParams> = ({route}) => {
             <Text style={styles.text1}> True {trueCount}</Text>
           </View>
         </View>
+
         <View style={styles.card}>
-          <Text style={styles.text1}>RECORDED</Text>
-          {renderAnswerList()}
+          <Text style={styles.title}>Results</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            {filteredAnswers.map((isCorrect: boolean, index: number) => (
+              <Text
+                key={index}
+                style={[styles.answerText, {width: '50%'}]}
+                numberOfLines={index >= 2 ? 1 : undefined}>
+                Q{index + 1}: {isCorrect ? 'Correct' : 'Incorrect'}
+              </Text>
+            ))}
+          </View>
+
           <View style={styles.controll_button}>
             <Text style={styles.title}>Passed Point: {point}</Text>
             <TouchableOpacity onPress={handleContinue} style={styles.button}>
@@ -141,8 +94,6 @@ const FetchResult: React.FC<HelloScreenParams> = ({route}) => {
     </View>
   );
 };
-
-export default FetchResult;
 
 const styles = StyleSheet.create({
   container: {
@@ -156,11 +107,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   answerText: {
-    fontSize: 18,
+    fontSize: 16,
     color: colors.deepBlue,
     fontFamily: 'Poppins-Medium',
     paddingHorizontal: 5,
     paddingVertical: 2,
+    flexDirection: 'row',
+    textAlign: 'center',
+    marginBottom: 10,
   },
   text: {
     fontSize: 25,
@@ -180,13 +134,14 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '50%',
-    height: '20%',
+    height: '17%',
     backgroundColor: colors.deepBlue,
     padding: 8,
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: 20,
+    // marginBottom: 20,
     borderRadius: 5,
+    justifyContent: 'center',
   },
   answerRow: {
     flexDirection: 'row',
@@ -224,14 +179,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   card: {
-    flex: 0.65,
+    flex: 0.74,
     backgroundColor: colors.white,
     borderRadius: 20,
     padding: 10,
   },
   controll_button: {
     flex: 1,
-    flexDirection: 'column',
     justifyContent: 'flex-end',
   },
 });
+
+export default TestRe;

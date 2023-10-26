@@ -33,29 +33,21 @@ import SecondGroupBy from './src/screens/SecondGroupBy';
 import FromBing from './src/screens/QuestionFetch';
 import Helloss from './src/screens/Helloss';
 import TestApi from './src/screens/TestApi';
+import TestCategory from './src/screens/TestCategory';
+import CustomAlert from './src/components/modal/CustomAlert ';
+import TestCorrect from './src/testing/TestCorrect';
+import FetchResult from './src/screens/FetchResult';
 
 const App = () => {
   return (
-    // <Text>Helo</Text>
-    // <Helloss />
     <StackNavigator />
-    // <TestApi />
-    // <JoinData />
-    // <SecondGroupBy />
     // <NavigationContainer>
-    //   <FromBing />
+    //   <TestCorrect />
     // </NavigationContainer>
-    // <TestGrougBy />
-    // <QuestionAnswerList />
+    // <CustomAlert />
     // <NavigationContainer>
-    //   <Question />
+    //   <TestCategory />
     // </NavigationContainer>
-    // <Result />
-    // <Counter />
-    // <Testing />
-    // <TestingSecond />
-    // <TestFetchQuestion />
-    // <ModalList />
   );
 };
 
