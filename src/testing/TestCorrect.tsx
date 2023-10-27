@@ -58,43 +58,6 @@ const TestCorrect = ({route}: any) => {
   let interval: any;
   let timer: any;
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       setIsLoading(true);
-  //       const questions: Array<QuestionModel> = await client
-  //         .collection('Tbl_question')
-  //         .getFullList();
-  //       setData(questions);
-
-  //       const answerIds = questions.flatMap(question => question.answers);
-  //       const fetchedAnswers: Array<AnswerModel> = await Promise.all(
-  //         answerIds.map(answerId =>
-  //           client.collection('Tbl_answer').getOne(answerId),
-  //         ),
-  //       );
-  //       setAnswers(fetchedAnswers);
-
-  //       // Initialize correctAnswers state
-  //       const initialCorrectAnswers: Array<Array<boolean>> = questions.map(
-  //         question => {
-  //           const correctAnswerIds = question.correct_answer.split(',');
-  //           return question.answers.map(answerId =>
-  //             correctAnswerIds.includes(answerId),
-  //           );
-  //         },
-  //       );
-  //       setCorrectAnswers(initialCorrectAnswers);
-  //       setIsLoading(false);
-  //     } catch (error) {
-  //       console.log(error);
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -183,7 +146,8 @@ const TestCorrect = ({route}: any) => {
       if (counter === 0) {
         clearTimeout(interval);
         setCounter(15);
-        setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+        // setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+        handleNextQuestion();
       }
     };
     const timer = setTimeout(myInterval, 1000);
@@ -225,31 +189,13 @@ const TestCorrect = ({route}: any) => {
     return answer ? answer.answer : '';
   };
 
-  // const handleNextQuestion = () => {
-  //   setCounter(15);
-  //   if (isAnswerCorrect) {
-  //     setPoint(prevPoint => prevPoint + 10);
-  //   }
-  //   setAnswers(prevAnswers => [...prevAnswers, isAnswerCorrect]);
-
-  //   if (currentQuestionIndex === TotalQuestion - 1) {
-  //     setTimeout(() => {
-  //       navigation.navigate('testRe', {
-  //         point: point + (isAnswerCorrect ? 10 : 0),
-  //         answers: [...answers, isAnswerCorrect],
-  //       });
-  //     }, 0);
-  //   } else {
-  //     setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-  //   }
-  // };
-
   const handleNextQuestion = () => {
     if (currentQuestionIndex === TotalQuestion - 1) {
       setTimeout(() => {
         navigation.navigate('testRe', {
           point: point + (isAnswerCorrect ? 10 : 0),
           answers: [...answers, isAnswerCorrect],
+          quiz_id: id,
         });
       }, 0);
       return;
@@ -284,12 +230,6 @@ const TestCorrect = ({route}: any) => {
       setPoint(prevPoint => prevPoint + 10);
     }
   };
-
-  // const handlePrevQuestion = () => {
-  //   setCounter(15);
-  //   setCurrentQuestionIndex(prevIndex => prevIndex - 1);
-  //   setSelectedAnswer(null);
-  // };
 
   const handlePrevQuestion = () => {
     setCounter(15);

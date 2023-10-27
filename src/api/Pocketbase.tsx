@@ -7,3 +7,20 @@ import PocketBase from 'pocketbase';
 // const url = 'https://others-pocketbase-quiz.jibofd.easypanel.host';
 const url = 'https://quiz.panel.dreamslab.dev';
 export const client = new PocketBase(url);
+
+export async function createUserScore({quiz_id, point}: any) {
+  const data = {
+    quiz: quiz_id,
+    score: point,
+  };
+  await client.collection('User_answer').create(data);
+}
+
+export async function updateUserScore({quiz_id, point}: any) {
+  const data = {
+    quiz: quiz_id,
+    score: point,
+  };
+
+  await client.collection('User_answer').update(quiz_id, data);
+}

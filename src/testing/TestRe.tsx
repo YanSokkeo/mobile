@@ -1,22 +1,84 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  BackHandler,
 } from 'react-native';
 import colors from '../../colors';
 import HeaderBackground from '../components/header/HeaderBackground';
+import {client, createUserScore, updateUserScore} from '../api/Pocketbase';
+import {updateRecord} from 'pocketbase-react/es/store/actions/records';
 
+interface UserAnswerModal {
+  id: String;
+  quiz: String;
+  score: number;
+}
 const TestRe = ({route}: any) => {
   const navigation = useNavigation();
-  const {answers, userAnswers, isAnswerCorrect, point} = route.params;
+  const {answers, userAnswers, isAnswerCorrect, point, quiz_id} = route.params;
 
-  const handleContinue = () => {
-    navigation.navigate('tabNavigation');
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userAnswers: Array<UserAnswerModal> = await client
+          .collection('User_answer')
+          .getFullList({fields: ['quiz']});
+
+        console.log(userAnswers);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleContinue = async () => {
+    try {
+      await createUserScore({quiz_id, point});
+      navigation.navigate('tabNavigation');
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  // const handleContinue = async () => {
+  //   try {
+  //     if (userAnswers === quiz_id) {
+  //       await createUserScore({quiz_id, point});
+  //     } else {
+  //       await updateUserScore({quiz_id, point});
+  //     }
+  //     navigation.navigate('tabNavigation');
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  useEffect(() => {
+    const disableBackButton = () => true; // Return true to disable the default back button behavior
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      disableBackButton,
+    );
+
+    return () => backHandler.remove(); // Clean up the event listener on unmount
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const USerAnswer: Array<UserAnswerModal> = await client
+        .collection('User_answer')
+        .getFullList();
+    };
+  }, []);
+
   let trueCount = 0;
   let falseCount = 0;
   const filteredAnswers = answers.filter(
@@ -94,6 +156,8 @@ const TestRe = ({route}: any) => {
     </View>
   );
 };
+
+export default TestRe;
 
 const styles = StyleSheet.create({
   container: {
@@ -189,5 +253,3 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
 });
-
-export default TestRe;

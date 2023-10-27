@@ -19,9 +19,10 @@ interface Props {
 
   headIcon?: string;
   onChangeText?: (value: any) => void;
+  onSubmitEditing?: (value: any) => void;
 }
 
-const Input: React.FC<Props> = props => {
+const SearchBox: React.FC<Props> = props => {
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
       <View style={styles.container2}>
@@ -31,13 +32,14 @@ const Input: React.FC<Props> = props => {
           placeholderTextColor={colors.lightGrey}
           style={styles.Textput}
           onChangeText={props.onChangeText}
+          onSubmitEditing={props.onSubmitEditing}
         />
       </View>
     </KeyboardAvoidingView>
   );
 };
 
-export default Input;
+export default SearchBox;
 
 const styles = StyleSheet.create({
   container: {

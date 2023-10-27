@@ -46,10 +46,10 @@ const TestCategory = () => {
   }, []);
 
   const handlePress = (id: string) => {
-    try {
+    if (id === null) {
+      console.log('nothing to see');
+    } else {
       navigation.navigate('testCorrect', {id});
-    } catch (error) {
-      console.log(error);
     }
   };
 
