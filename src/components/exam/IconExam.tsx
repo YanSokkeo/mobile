@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import React from 'react';
 import colors from '../../../colors';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 interface Props {
   number: string;

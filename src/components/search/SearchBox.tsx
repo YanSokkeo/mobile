@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import React from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -24,7 +25,10 @@ interface Props {
 
 const SearchBox: React.FC<Props> = props => {
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+      enabled>
       <View style={styles.container2}>
         <Icon name={props.iconName} size={30} style={styles.icon} />
         <TextInput
@@ -43,9 +47,9 @@ export default SearchBox;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     marginBottom: 0,
     margin: 15,
-    flex: 0.1,
   },
   icon: {
     color: colors.deepBlue,

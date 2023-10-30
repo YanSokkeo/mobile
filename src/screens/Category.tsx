@@ -21,7 +21,7 @@ interface RecordModel {
   imageUrl: string;
 }
 
-const TestCategory = () => {
+const Category = () => {
   const navigation = useNavigation();
   const [data, setData] = useState<RecordModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,11 +45,11 @@ const TestCategory = () => {
     fetchData();
   }, []);
 
-  const handlePress = (id: string) => {
+  const handlePress = (id: string, time: String) => {
     if (id === null) {
       console.log('nothing to see');
     } else {
-      navigation.navigate('testCorrect', {id});
+      navigation.navigate('question', {id, time});
     }
   };
 
@@ -69,8 +69,8 @@ const TestCategory = () => {
             <BigExamDone
               image={item.imageUrl}
               title={item.title}
-              subtitle={item.time}
-              onPress={() => handlePress(item.id)}
+              subtitle={`${item.time} minutes`}
+              onPress={() => handlePress(item.id, item.time)}
               iconName={'play'}
             />
           </View>
@@ -91,7 +91,7 @@ const TestCategory = () => {
   );
 };
 
-export default TestCategory;
+export default Category;
 
 const styles = StyleSheet.create({
   controllView: {

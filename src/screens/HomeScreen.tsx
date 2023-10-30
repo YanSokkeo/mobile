@@ -4,6 +4,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  KeyboardAvoidingView,
 } from 'react-native';
 import React from 'react';
 import CustomHeader from '../components/header/CustomHeader';

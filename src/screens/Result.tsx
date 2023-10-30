@@ -1,116 +1,101 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
-  StyleSheet,
-  Text,
-  SafeAreaView,
   View,
-  Pressable,
-  FlatList,
+  Text,
+  StyleSheet,
+  ScrollView,
   TouchableOpacity,
+  BackHandler,
 } from 'react-native';
 import colors from '../../colors';
 import HeaderBackground from '../components/header/HeaderBackground';
+import {client, createUserScore, updateUserScore} from '../api/Pocketbase';
+import {updateRecord} from 'pocketbase-react/es/store/actions/records';
+import {CurrentQuestionIndexAtom} from '../atom/CurrentQuestionIndexAtom';
+import {useAtom} from 'jotai';
 
-type ResultScreenParams = {
-  route: any;
-  answers: Answer[];
-  point: number;
-};
-
-type Answer = {
-  question: number;
-  answer: boolean;
-  point: number;
-};
-
-const ResultsScreen: React.FC<ResultScreenParams> = ({route}) => {
-  const {answers, point} = route.params;
+interface UserAnswerModal {
+  id: String;
+  quiz: String;
+  score: number;
+}
+const Result = ({route}: any) => {
   const navigation = useNavigation();
-  console.log(route.params);
-  const handleContinue = () => {
-    navigation.navigate('tabNavigation');
+  const {answers, userAnswers, isAnswerCorrect, point, quiz_id} = route.params;
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useAtom(
+    CurrentQuestionIndexAtom,
+  );
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const userAnswers: Array<UserAnswerModal> = await client
+  //         .collection('User_answer')
+  //         .getFullList({fields: ['quiz']});
+
+  //       console.log(userAnswers);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+
+  const handleContinue = async () => {
+    try {
+      await createUserScore({quiz_id, point});
+      navigation.navigate('tabNavigation');
+    } catch (error) {
+      console.log(error);
+    }
+    setCurrentQuestionIndex(0); // Reset the state to the initial value
+    return;
   };
 
-  const countAnswers = () => {
-    let trueCount = 0;
-    let falseCount = 0;
+  useEffect(() => {
+    const disableBackButton = () => true;
 
-    answers.forEach((answer: any) => {
-      if (answer.answer) {
-        trueCount++;
-      } else {
-        falseCount++;
-      }
-    });
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      disableBackButton,
+    );
 
-    const totalCount = trueCount + falseCount;
-    const truePercentage = (trueCount / totalCount) * 100;
-    const falsePercentage = (falseCount / totalCount) * 100;
+    return () => backHandler.remove();
+  }, []);
 
-    return {trueCount, falseCount, truePercentage, falsePercentage};
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      const USerAnswer: Array<UserAnswerModal> = await client
+        .collection('User_answer')
+        .getFullList();
+    };
+  }, []);
 
-  const {trueCount, falseCount, truePercentage, falsePercentage} =
-    countAnswers();
+  let trueCount = 0;
+  let falseCount = 0;
+  const filteredAnswers = answers.filter(
+    (answer: any) => answer === true || answer === false,
+  );
+  filteredAnswers.forEach((answer: any) => {
+    if (answer === true) {
+      trueCount++;
+    } else if (answer === false) {
+      falseCount++;
+    }
+  });
+  const totalCount = trueCount + falseCount;
+  const truePercentage = (trueCount / totalCount) * 100;
 
+  console.log('True count:', trueCount);
+  console.log('False count:', falseCount);
+  console.log('Total count:', totalCount);
+
+  console.log(filteredAnswers);
+  //   console.log(answers);
   return (
-    <SafeAreaView style={styles.container}>
-      {/* <View
-        style={{
-          backgroundColor: 'white',
-          width: '100%',
-          height: '50%',
-          borderRadius: 7,
-          marginTop: 20,
-        }}>
-        <Text
-          style={{
-            color: 'magenta',
-            fontSize: 15,
-            fontWeight: '500',
-            textAlign: 'center',
-            marginTop: 8,
-          }}>
-          Score Card
-        </Text>
-        <FlatList
-          numColumns={2}
-          data={answers}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({item}) => (
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: 10,
-                flexDirection: 'row',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}>
-              <Text>{item.question.toString()}. </Text>
-              <Text>{item.answer ? 'true' : 'false'} </Text>
-            </View>
-          )}
-        />
-        <View style={{alignItems: 'center', marginTop: 20}}>
-          <Text>True Count: {trueCount}</Text>
-          <Text>True Count: {point}</Text>
-          <Text>True Percentage: {truePercentage.toFixed(2)}%</Text>
-        </View>
-        <TouchableOpacity
-          onPress={handleContinue}
-          style={{
-            backgroundColor: 'green',
-            padding: 8,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            marginBottom: 20,
-            borderRadius: 5,
-          }}>
-          <Text style={{color: 'white', textAlign: 'center'}}>Continue</Text>
-        </TouchableOpacity>
-      </View> */}
+    <View style={styles.container}>
       <View style={styles.navigator}>
         <HeaderBackground
           iconleft="menu"
@@ -131,59 +116,107 @@ const ResultsScreen: React.FC<ResultScreenParams> = ({route}) => {
             <Text style={[styles.text1, {marginLeft: 20}]}>
               False: {falseCount}
             </Text>
-            <Text style={styles.text1}> True: {trueCount} </Text>
+            <Text style={styles.text1}> True {trueCount}</Text>
           </View>
         </View>
+
         <View style={styles.card}>
-          <Text style={styles.title}>RECORDED</Text>
-          <FlatList
-            numColumns={2}
-            data={answers}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item}) => (
-              <View
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: 10,
-                  flexDirection: 'row',
-                  marginLeft: 'auto',
-                  marginRight: 'auto',
-                }}>
-                <Text style={styles.text1}>{item.question.toString()}. </Text>
-                <Text style={styles.text1}>
-                  {item.answer ? 'true' : 'false'}
+          <Text style={styles.title}>Results</Text>
+          <ScrollView style={{flex: 0.5}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              {filteredAnswers.map((isCorrect: boolean, index: number) => (
+                <Text
+                  key={index}
+                  style={[styles.answerText, {width: '50%'}]}
+                  numberOfLines={index >= 2 ? 1 : undefined}>
+                  Q{index + 1}: {isCorrect ? 'Correct' : 'Incorrect'}
                 </Text>
-              </View>
-            )}
-          />
-          <Text style={styles.title}>You Got {point} point</Text>
-          <TouchableOpacity onPress={handleContinue} style={styles.button}>
-            <Text style={styles.text_BTN}>Continue</Text>
-          </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+          <View style={styles.controll_button}>
+            <Text style={styles.title}>Passed Point: {point}</Text>
+            <TouchableOpacity onPress={handleContinue} style={styles.button}>
+              <Text style={styles.text_BTN}>Continue</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
-export default ResultsScreen;
+export default Result;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundWhite,
   },
+
+  answerContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  answerText: {
+    fontSize: 16,
+    color: colors.deepBlue,
+    fontFamily: 'Poppins-Medium',
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    flexDirection: 'row',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  text: {
+    fontSize: 25,
+    color: colors.white,
+    fontFamily: 'Poppins-Medium',
+  },
+  text1: {
+    fontSize: 18,
+    color: colors.deepBlue,
+    fontFamily: 'Poppins-Medium',
+    textAlign: 'center',
+  },
+  text_BTN: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 18,
+  },
+  button: {
+    width: '50%',
+    height: '50%',
+    backgroundColor: colors.deepBlue,
+    padding: 8,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    borderRadius: 5,
+    justifyContent: 'center',
+  },
+  answerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    paddingVertical: 10,
+  },
   navigator: {
     flex: 0.1,
   },
   body: {
     flex: 0.9,
-    // padding: 10,
     margin: 10,
   },
   score: {
-    flex: 0.25,
+    flex: 0.26,
   },
   circle: {
     width: '40%',
@@ -202,36 +235,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     textAlign: 'center',
   },
-  text: {
-    fontSize: 25,
-    color: colors.white,
-    fontFamily: 'Poppins-Medium',
-  },
-  text1: {
-    fontSize: 14,
-    color: colors.deepBlue,
-    fontFamily: 'Poppins-Medium',
-    textAlign: 'center',
-  },
-  text_BTN: {
-    color: 'white',
-    textAlign: 'center',
-    fontSize: 18,
-  },
-  button: {
-    width: '40%',
-    height: '10%',
-    backgroundColor: colors.deepBlue,
-    padding: 8,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginBottom: 20,
-    borderRadius: 5,
-  },
   card: {
-    flex: 0.65,
+    flex: 0.74,
     backgroundColor: colors.white,
     borderRadius: 20,
     padding: 10,
+  },
+  controll_button: {
+    flex: 0.2,
+    justifyContent: 'flex-end',
   },
 });

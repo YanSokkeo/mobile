@@ -1,132 +1,343 @@
+import React, {useState, useEffect} from 'react';
 import {
-  StyleSheet,
+  FlatList,
   Text,
   View,
-  Pressable,
+  StyleSheet,
   TouchableOpacity,
+  Button,
+  BackHandler,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useState, useEffect, JSXElementConstructor} from 'react';
+import PocketBase from 'pocketbase';
+import {client} from '../api/Pocketbase';
 import colors from '../../colors';
-import HeaderBackground from '../components/header/HeaderBackground';
-import TimerScreen from './TimerScreen';
-import Quiz from '../components/dummy/Quiz';
-import Icon from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import CustomNextPreview from '../components/button/CustomNextPreview';
+import HeaderBackground from '../components/header/HeaderBackground';
+import CustomAlert from '../components/modal/CustomAlert ';
+import Icon from 'react-native-vector-icons/Ionicons';
 import ModalList from '../components/modal/ModalList';
+import {useAtom} from 'jotai';
+import {CurrentQuestionIndexAtom} from '../atom/CurrentQuestionIndexAtom';
 
-const Question = () => {
+interface QuestionModel {
+  quiz_id: string;
+  id: string;
+  question: string;
+  index_of_question: string;
+  answers: string[];
+  correct_answer: string;
+}
+
+interface AnswerModel {
+  id: string;
+  answer: string;
+}
+
+const Question = ({route}: any) => {
   const navigation = useNavigation();
-  const data = Quiz;
-  const totalQuestion = data.length;
-
-  const [point, setPoint] = useState<number>(0);
-
-  const [index, setIndex] = useState<number>(0);
-
-  const CurrentQuestion = data[index];
-
-  const progressPercentage = Math.floor((index / totalQuestion) * 100);
-
-  const [answerStatus, setAnswerStatus] = useState<boolean | null>(null);
-
-  const [answers, setAnswers] = useState<Array<any>>([]);
-
-  const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(
-    null,
+  const {id, time} = route.params;
+  const [data, setData] = useState<Array<QuestionModel>>([]);
+  const [showAlert, setShowAlert] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [answers, setAnswers] = useState<Array<AnswerModel>>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useAtom(
+    CurrentQuestionIndexAtom,
   );
+  const totalQuestion = data.length;
+  const [questionDuration, setQuestionDuration] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState<Array<
+    Array<boolean>
+  > | null>(null);
+  const [point, setPoint] = useState(0);
+  const progressPercentage = Math.floor(
+    ((currentQuestionIndex + 1) / totalQuestion) * 100,
+  );
+  const [oldChoice, setOldChoice] = useState<(string | null)[]>([]);
 
-  const [counter, setCounter] = useState<number>(15);
-  let interval: NodeJS.Timeout | null = null;
-
-  useEffect(() => {
-    if (selectedAnswerIndex !== null) {
-      if (selectedAnswerIndex === CurrentQuestion?.correctAnswerIndex) {
-        setPoint(point => point + 10);
-        setAnswerStatus(true);
-        answers.push({question: index + 1, answer: true});
-      } else {
-        setAnswerStatus(false);
-        answers.push({question: index + 1, answer: false});
-      }
-    }
-  }, [selectedAnswerIndex]);
-
-  useEffect(() => {
-    setSelectedAnswerIndex(null);
-    setAnswerStatus(null);
-  }, [index]);
+  const [counter, setCounter] = useState<number>(0);
+  let interval: any;
+  let timer: any;
 
   useEffect(() => {
-    let interval: any;
-    const myInterval = () => {
-      if (counter >= 1) {
-        setCounter(counter => counter - 1);
-      }
-      if (counter === 0) {
-        setIndex(index + 1);
-        setCounter(15);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        const questions: Array<QuestionModel> = await client
+          .collection('Tbl_question')
+          .getFullList();
+
+        // Filter the questions based on quiz_id
+        const filteredQuestions = questions.filter(
+          question => question.quiz_id === id,
+        );
+
+        setData(filteredQuestions);
+
+        const answerIds = filteredQuestions.flatMap(
+          question => question.answers,
+        );
+        const fetchedAnswers: Array<AnswerModel> = await Promise.all(
+          answerIds.map(answerId =>
+            client.collection('Tbl_answer').getOne(answerId),
+          ),
+        );
+        setAnswers(fetchedAnswers);
+
+        // Initialize correctAnswers state
+        const initialCorrectAnswers: Array<Array<boolean>> =
+          filteredQuestions.map(question => {
+            const correctAnswerIds = question.correct_answer.split(',');
+            return question.answers.map(answerId =>
+              correctAnswerIds.includes(answerId),
+            );
+          });
+        setCorrectAnswers(initialCorrectAnswers);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+        setIsLoading(false);
       }
     };
-    interval = setTimeout(myInterval, 1000);
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    // Calculate questionDuration here based on your logic
+    const duration = time / totalQuestion;
+    setQuestionDuration(duration);
+  }, [data]);
+
+  useEffect(() => {
+    const backAction = () => {
+      setShowAlert(true);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
+
+  const handleConfirmLeave = () => {
+    navigation.goBack();
+    setShowAlert(false);
+  };
+
+  const handleCancelLeave = () => {
+    setShowAlert(false);
+  };
+
+  ///////////////////
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        clearTimeout(timer);
+      };
+    }, []),
+  );
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    const myInterval = () => {
+      setCounter(prevCounter => {
+        if (prevCounter > 0) {
+          return prevCounter - 1;
+        }
+        clearInterval(interval);
+        handleNextQuestion();
+        return questionDuration * 60; // Reset counter to questionDuration (converted to seconds)
+      });
+    };
+
+    setCounter(questionDuration * 60); // Set counter to questionDuration in seconds when component mounts
+
+    interval = setInterval(myInterval, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [questionDuration, currentQuestionIndex]); // Add currentQuestionIndex as dependency
+
+  useEffect(() => {
     return () => {
       clearTimeout(interval);
     };
-  }, [counter]);
+  }, [questionDuration]);
 
+  let TotalQuestion = data.length;
   useEffect(() => {
-    if (!interval) {
-      setCounter(15);
-    }
-  }, [index]);
+    TotalQuestion = data.length;
+  }, [data]);
 
-  useEffect(() => {
-    if (index + 1 > data.length) {
-      navigation.navigate('result', {
-        answers: answers,
-        point: point,
-      } as never);
-    }
-  }, [CurrentQuestion]);
+  const handleAnswerSelection = (answer: string) => {
+    setSelectedAnswer(answer);
+    const currentQuestion = data[currentQuestionIndex];
+    const correctAnswer =
+      correctAnswers && correctAnswers[currentQuestionIndex];
 
-  const handleNextQuestion = (): void => {
-    if (index + 1 <= data.length) {
-      setIndex(index => index + 1);
-      setCounter(15);
-      setSelectedAnswerIndex(null);
-      setAnswerStatus(null);
-    } else if (index + 1 >= data.length) {
-      navigation.navigate('result', {
-        point: point,
-        answers: answers,
-      });
+    if (currentQuestion && correctAnswer) {
+      const answerIndex = currentQuestion.answers.findIndex(
+        item => item.trim() === answer.trim(),
+      );
+      const isAnswerTrue = correctAnswer[answerIndex];
+      setIsAnswerCorrect(isAnswerTrue);
+      console.log(`User's answer: ${answer}`);
+      console.log(`Is answer correct? ${isAnswerTrue}`);
     }
   };
 
-  const handlePrevQuestion = (): void => {
-    if (index > 0) {
-      setIndex(index => index - 1);
-      setCounter(15);
-      setSelectedAnswerIndex(null);
-      setAnswerStatus(null);
+  const getAnswerText = (answerId: string) => {
+    const answer = answers.find(ans => ans.id === answerId);
+    return answer ? answer.answer : '';
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex === TotalQuestion - 1) {
+      setTimeout(() => {
+        navigation.navigate('result', {
+          point: point + (isAnswerCorrect ? 10 : 0),
+          answers: [...answers, isAnswerCorrect],
+          quiz_id: id,
+        });
+      }, 0);
+      return;
+    }
+
+    setCounter(questionDuration);
+
+    const isNewAnswerCorrect = isAnswerCorrect;
+
+    setAnswers(prevAnswers => {
+      const updatedAnswers = [...prevAnswers];
+      updatedAnswers[currentQuestionIndex] = isNewAnswerCorrect;
+      return updatedAnswers;
+    });
+
+    // Set the old choice for the next question
+    setOldChoice(prevOldChoice => {
+      const updatedOldChoice = [...prevOldChoice];
+      updatedOldChoice[currentQuestionIndex + 1] = selectedAnswer;
+      return updatedOldChoice;
+    });
+
+    // Reset the state for the next question
+    setSelectedAnswer(null);
+    setIsAnswerCorrect(false);
+
+    setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+
+    if (isNewAnswerCorrect) {
+      setPoint(prevPoint => prevPoint + 10);
     }
   };
 
-  console.log(answerStatus);
+  const handlePrevQuestion = () => {
+    setCounter(questionDuration);
+
+    // Check if the previous question's old choice is true
+    const isPreviousChoiceCorrect = answers[currentQuestionIndex - 1];
+
+    // Deduct points only if the previous choice is true
+    if (isPreviousChoiceCorrect) {
+      setPoint(prevPoint => prevPoint - 10);
+    }
+
+    // Set the old choice for the current question
+    setSelectedAnswer(oldChoice[currentQuestionIndex]);
+
+    // Reset the state for the current question
+    setIsAnswerCorrect(false);
+
+    setCurrentQuestionIndex(prevIndex => prevIndex - 1);
+  };
+
+  const renderQuestion = () => {
+    const {question, answers, correct_answer} = data[currentQuestionIndex];
+
+    const isFirstQuestion = currentQuestionIndex === 0;
+    const isLastQuestion = currentQuestionIndex === data.length - 1;
+
+    return (
+      <View style={styles.itemContainer}>
+        <Text style={styles.questionText}>{question}</Text>
+        {answers.map((answer, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => handleAnswerSelection(answer)}
+            style={{
+              width: '95%',
+              height: 80,
+              backgroundColor:
+                selectedAnswer === answer.trim() ? colors.blue : colors.white,
+              padding: 20,
+              margin: 10,
+              flexDirection: 'row',
+              borderRadius: 10,
+              alignSelf: 'center',
+            }}>
+            <View style={styles.circle} />
+            <Text
+              style={{
+                color:
+                  selectedAnswer === answer.trim()
+                    ? colors.white
+                    : colors.deepBlue,
+                fontSize: 14,
+                paddingHorizontal: 10,
+                flexWrap: 'wrap',
+                alignSelf: 'center',
+              }}>
+              {getAnswerText(answer)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.spinner}>
+        <ActivityIndicator size="large" color={colors.deepBlue} />
+      </View>
+    );
+  }
+
+  if (data.length === 0 || !data[currentQuestionIndex]) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
       <HeaderBackground
         iconleft="menu"
         iconfirstRight="menu"
-        title={`Question ${index + 1}/${totalQuestion}`}
+        title={`Question ${currentQuestionIndex + 1}/${totalQuestion}`}
+        // title={'question'}
         textColor={colors.white}
         backgroundColors={colors.deepBlue}
         IconColor={colors.white}
         secondColor={colors.deepBlue}
       />
+      <CustomAlert
+        visible={showAlert}
+        message="Are you sure? Do you want to leave?"
+        onConfirm={handleConfirmLeave}
+        onCancel={handleCancelLeave}
+      />
       <View style={styles.timer}>
-        {/* <TimerScreen /> */}
         <Text
           style={{
             backgroundColor: colors.runTimeColor,
@@ -135,7 +346,6 @@ const Question = () => {
           }}
         />
       </View>
-
       <View style={styles.timerWithList}>
         <View style={styles.iconContainer2}>
           <Icon
@@ -152,81 +362,21 @@ const Question = () => {
           />
           <Text style={styles.text}>{counter} Remaining</Text>
         </View>
-        <ModalList />
+        <ModalList questionData={data} />
       </View>
 
       <View style={styles.questionContainer}>
-        <Text style={styles.text_question}>{CurrentQuestion?.question}</Text>
-        <View>
-          {CurrentQuestion?.options.map((item: any, index: number) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() =>
-                selectedAnswerIndex === null && setSelectedAnswerIndex(index)
-              }
-              // onPress={() => {
-              //   if (selectedAnswerIndex === null) {
-              //     setSelectedAnswerIndex(index);
-              //     if (selectedAnswerIndex !== null) {
-              //       if (
-              //         selectedAnswerIndex ===
-              //         CurrentQuestion?.correctAnswerIndex
-              //       ) {
-              //         setIndex(index + 1);
-              //         setPoint(point => point + 10);
-              //         setAnswerStatus(true);
-              //         answers.push({question: index + 1, answer: true});
-              //       } else {
-              //         setIndex(index + 1);
-              //         setAnswerStatus(false);
-              //         answers.push({question: index + 1, answer: false});
-              //       }
-              //     }
-              //   }
-              // }}
-              // disabled={selectedAnswerIndex !== null}
-              style={[
-                selectedAnswerIndex === index &&
-                index === CurrentQuestion.correctAnswerIndex
-                  ? styles.answer_Container_true
-                  : selectedAnswerIndex !== null &&
-                    selectedAnswerIndex === index
-                  ? styles.answer_Container_true
-                  : styles.answer_Container,
-              ]}>
-              <View
-                style={{
-                  width: 40,
-                  height: 40,
-                  backgroundColor: colors.lightBlue,
-                  borderRadius: 20,
-                  alignSelf: 'center',
-                }}
-              />
-              <View style={styles.controll_Text}>
-                <Text
-                  style={[
-                    selectedAnswerIndex == index &&
-                    index === CurrentQuestion?.correctAnswerIndex
-                      ? styles.text_true
-                      : selectedAnswerIndex !== null &&
-                        selectedAnswerIndex == index
-                      ? styles.text_false
-                      : styles.text,
-                  ]}>
-                  {item.answer}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {data.length > 0 && renderQuestion()}
       </View>
+
       <View style={styles.buttom_btn}>
         <CustomNextPreview
           text="Prev"
           iconLeft="chevron-left"
           leftColor={colors.white}
           onPress={handlePrevQuestion}
+          disable={currentQuestionIndex >= 0}
+          // disable={currentQuestionIndex == 0}
         />
         <CustomNextPreview
           text="Next"
@@ -246,24 +396,64 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.backgroundWhite,
   },
+  itemContainer: {
+    marginVertical: 10,
+  },
+  questionContainer: {
+    flex: 0.8,
+    margin: 10,
+  },
+  questionText: {
+    fontSize: 20,
+    color: colors.deepBlue,
+    textAlign: 'center',
+  },
+  answerText: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: colors.deepBlue,
+  },
+  correctAnswerText: {
+    fontWeight: 'bold',
+  },
+  touchablestyle: {
+    width: '95%',
+    height: 80,
+    backgroundColor: colors.white,
+    padding: 20,
+    margin: 10,
+    flexDirection: 'row',
+    borderRadius: 10,
+    alignSelf: 'center',
+  },
+
+  circle: {
+    width: 40,
+    height: 40,
+    backgroundColor: colors.lightBlue,
+    borderRadius: 20,
+    alignSelf: 'center',
+  },
+  buttom_btn: {
+    flex: 0.1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    margin: 10,
+  },
   timer: {
     flex: 0.01,
     flexDirection: 'row',
+  },
+  spinner: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   timerWithList: {
     flex: 0.1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    backgroundColor: colors.blue,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
   },
   iconContainer2: {
     width: 32,
@@ -272,21 +462,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   remainingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  questionContainer: {
-    flex: 0.8,
-    margin: 10,
-  },
-  buttom_btn: {
-    flex: 0.1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    margin: 10,
-  },
-  icon: {},
   text: {
     fontSize: 14,
     color: colors.blue,
@@ -294,72 +474,4 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     padding: 10,
   },
-  text_true: {
-    fontSize: 14,
-    color: colors.white,
-    fontFamily: 'Poppins-Medium',
-    alignSelf: 'center',
-    padding: 10,
-  },
-  text_false: {
-    fontSize: 14,
-    color: colors.white,
-    fontFamily: 'Poppins-Medium',
-    alignSelf: 'center',
-    padding: 10,
-  },
-  text_question: {
-    width: 'auto',
-    height: 'auto',
-    fontSize: 16,
-    fontFamily: 'Poppins-Medium',
-    color: colors.deepBlue,
-    alignSelf: 'center',
-  },
-  // option_text: {
-  //   width: '100%',
-  //   height: '80%',
-  //   backgroundColor: colors.white,
-  // },
-  answer_Container: {
-    flexDirection: 'row',
-    width: '95%',
-    height: '19%',
-    margin: 10,
-    padding: 5,
-    backgroundColor: colors.white,
-    borderRadius: 10,
-    alignSelf: 'center',
-  },
-
-  answer_Container_true: {
-    flexDirection: 'row',
-    width: '95%',
-    height: '19%',
-    margin: 10,
-    padding: 5,
-    backgroundColor: colors.deepBlue,
-    borderRadius: 10,
-    alignSelf: 'center',
-  },
-  answer_Container_false: {
-    width: '90%',
-    height: '19%',
-    padding: 10,
-    margin: 10,
-    backgroundColor: colors.red,
-    borderRadius: 10,
-  },
-  controll_Text: {
-    width: '88%',
-    height: '100%',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
-    alignSelf: 'center',
-    paddingTop: 10,
-  },
 });
-
-function setCurrentQuestionIndex(arg0: any) {
-  throw new Error('Function not implemented.');
-}

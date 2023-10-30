@@ -8,16 +8,15 @@ import {
 import React, {useState} from 'react';
 import CustomHeader from '../components/header/CustomHeader';
 import colors from '../../colors';
-import ExamDone from '../components/exam/ExamDone';
-import BigExamDone from '../components/exam/BigExamDone';
-import AllExam from '../components/dummy/AllExam';
 import {useNavigation} from '@react-navigation/native';
-import TestCategory from './TestCategory';
+import Category from './Category';
+import {AnsweredQuizId} from '../atom/AnswerQuizID';
+import {useAtom} from 'jotai';
 
 const ExamList = () => {
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
-
+  // const [answeredQuizIds, setAnsweredQuizIds] = useAtom(AnsweredQuizId);
   const handleDataFetch = () => {
     setIsLoading(false);
   };
@@ -37,7 +36,7 @@ const ExamList = () => {
           <Text style={styles.subtitle}>12th MIPA 2</Text>
         </View>
       </View>
-      <TestCategory />
+      <Category />
     </View>
   );
 };

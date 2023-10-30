@@ -5,6 +5,8 @@ import colors from '../../../colors';
 import Quiz from '../dummy/Quiz';
 import PocketBase from 'pocketbase';
 import {client} from '../../api/Pocketbase';
+import {useAtom} from 'jotai';
+import {CurrentQuestionIndexAtom} from '../../atom/CurrentQuestionIndexAtom';
 
 const data = Quiz;
 interface RecordModel {
@@ -38,6 +40,9 @@ const ModalList = ({questionData}: {questionData: Array<QuestionModel>}) => {
   const [visible, setVisible] = React.useState(false);
   const [numberData, setNumberData] = useState<Array<RecordModel>>([]);
   const [data, setData] = useState<Array<QuestionModel>>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useAtom(
+    CurrentQuestionIndexAtom,
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,11 +58,29 @@ const ModalList = ({questionData}: {questionData: Array<QuestionModel>}) => {
     fetchData();
   }, []);
 
-  const controlView = questionData.map(question => (
-    <TouchableOpacity key={question.id} style={[styles.controll_box]}>
-      <Text style={styles.text}>{question.index_of_question}</Text>
-    </TouchableOpacity>
+  const controlView = questionData.map((question, data) => (
+    <View
+      key={question.id}
+      style={[
+        styles.controll_box,
+        // Apply a different style to the current question index
+        currentQuestionIndex + 1 <= data && styles.currentQuestionIndex,
+      ]}>
+      <Text
+        style={[
+          styles.text,
+          currentQuestionIndex + 1 <= data && styles.textIndex,
+        ]}>
+        {question.index_of_question}
+      </Text>
+    </View>
   ));
+
+  // const controlView = questionData.map(question => (
+  //   <TouchableOpacity key={question.id} style={[styles.controll_box]}>
+  //     <Text style={styles.text}>{question.index_of_question}</Text>
+  //   </TouchableOpacity>
+  // ));
 
   return (
     <View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
@@ -107,10 +130,10 @@ const styles = StyleSheet.create({
     width: '90%',
     height: '60%',
     backgroundColor: colors.backgroundWhite,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    borderRadius: 20,
-    elevation: 20,
+    paddingHorizontal: 25,
+    paddingVertical: 25,
+    borderRadius: 25,
+    elevation: 25,
   },
   head: {
     width: '100%',
@@ -125,9 +148,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   controll_box: {
-    width: 40,
-    height: 40,
-    backgroundColor: colors.white,
+    width: 44,
+    height: 44,
+    backgroundColor: colors.lightAbitBlue,
     borderRadius: 10,
     margin: 10,
     borderWidth: 1,
@@ -138,7 +161,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingTop: 10,
     fontSize: 16,
-    color: colors.blue,
+    color: colors.white,
     fontFamily: 'Poppins-Medium',
+  },
+  textIndex: {
+    alignSelf: 'center',
+    paddingTop: 10,
+    fontSize: 16,
+    color: colors.deepBlue,
+    fontFamily: 'Poppins-Medium',
+  },
+  currentQuestionIndex: {
+    backgroundColor: colors.white,
   },
 });

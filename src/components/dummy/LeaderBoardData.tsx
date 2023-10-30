@@ -6,7 +6,7 @@ const LeaderBoardData = [
     image: require('../../../assets/images/1.png'),
     name: 'Emma Thompson',
     score: '100 point',
-    icon: 'trophy', // yok pi icon FontAwesom
+    icon: 'ribbon-outline', // yok pi icon FontAwesom
     IconColors: '#ffd601',
   },
   {
@@ -15,7 +15,7 @@ const LeaderBoardData = [
     image: require('../../../assets/images/1.png'),
     name: 'Liam Johnson',
     score: '90 point',
-    icon: 'trophy', // yok pi icon FontAwesom
+    icon: 'ribbon-outline', // yok pi icon FontAwesom
     IconColors: '#bebebe',
   },
   {
@@ -24,7 +24,7 @@ const LeaderBoardData = [
     image: require('../../../assets/images/1.png'),
     name: 'Olivia Davis',
     score: '88 point',
-    icon: 'trophy', // yok pi icon FontAwesom
+    icon: 'ribbon-outline', // yok pi icon FontAwesom
     IconColors: '#cb7f33',
   },
   {
