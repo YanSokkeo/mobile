@@ -18,6 +18,7 @@ const ExamList = () => {
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
   // const [answeredQuizIds, setAnsweredQuizIds] = useAtom(AnsweredQuizId);
+  // const [isComponentVisible, setComponentVisible] = useState(true);
   const handleDataFetch = () => {
     setIsLoading(false);
   };

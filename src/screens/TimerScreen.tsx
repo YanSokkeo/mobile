@@ -21,15 +21,14 @@ const TimerScreen = () => {
     });
     animation.start(() => {
       console.log('Time is up!');
-      // Add your logic to move to the next question or perform any other action
-      // Call the resetTimer function to reset and start the timer again
+
       resetTimer();
     });
   };
 
   const resetTimer = () => {
-    animation?.stop(); // Stop the current animation if it's running
-    startTimer(); // Start the timer again
+    animation?.stop();
+    startTimer();
   };
 
   const animatedStyle = {

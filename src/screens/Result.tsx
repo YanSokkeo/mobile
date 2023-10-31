@@ -23,7 +23,8 @@ interface UserAnswerModal {
 }
 const Result = ({route}: any) => {
   const navigation = useNavigation();
-  const {answers, userAnswers, isAnswerCorrect, point, quiz_id} = route.params;
+  const {answers, userAnswers, isAnswerCorrect, point, quiz_id, user_result} =
+    route.params;
   const [currentQuestionIndex, setCurrentQuestionIndex] = useAtom(
     CurrentQuestionIndexAtom,
   );
@@ -46,12 +47,12 @@ const Result = ({route}: any) => {
 
   const handleContinue = async () => {
     try {
-      await createUserScore({quiz_id, point});
+      await createUserScore({quiz_id, point, user_result: userResult});
       navigation.navigate('tabNavigation');
     } catch (error) {
       console.log(error);
     }
-    setCurrentQuestionIndex(0); // Reset the state to the initial value
+    setCurrentQuestionIndex(0);
     return;
   };
 
@@ -88,7 +89,13 @@ const Result = ({route}: any) => {
   });
   const totalCount = trueCount + falseCount;
   const truePercentage = (trueCount / totalCount) * 100;
+  let userResult = ''; // Initialize the user_result variable
 
+  if (truePercentage >= 70) {
+    userResult = 'Passed';
+  } else {
+    userResult = 'Failed';
+  }
   console.log('True count:', trueCount);
   console.log('False count:', falseCount);
   console.log('Total count:', totalCount);

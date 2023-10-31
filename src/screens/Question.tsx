@@ -109,7 +109,6 @@ const Question = ({route}: any) => {
   }, []);
 
   useEffect(() => {
-    // Calculate questionDuration here based on your logic
     const duration = time / totalQuestion;
     setQuestionDuration(duration);
   }, [data]);
@@ -139,7 +138,6 @@ const Question = ({route}: any) => {
     setShowAlert(false);
   };
 
-  ///////////////////
   useFocusEffect(
     React.useCallback(() => {
       return () => {
@@ -169,7 +167,7 @@ const Question = ({route}: any) => {
     return () => {
       clearInterval(interval);
     };
-  }, [questionDuration, currentQuestionIndex]); // Add currentQuestionIndex as dependency
+  }, [questionDuration, currentQuestionIndex]);
 
   useEffect(() => {
     return () => {
@@ -228,14 +226,12 @@ const Question = ({route}: any) => {
       return updatedAnswers;
     });
 
-    // Set the old choice for the next question
     setOldChoice(prevOldChoice => {
       const updatedOldChoice = [...prevOldChoice];
       updatedOldChoice[currentQuestionIndex + 1] = selectedAnswer;
       return updatedOldChoice;
     });
 
-    // Reset the state for the next question
     setSelectedAnswer(null);
     setIsAnswerCorrect(false);
 
@@ -249,18 +245,14 @@ const Question = ({route}: any) => {
   const handlePrevQuestion = () => {
     setCounter(questionDuration);
 
-    // Check if the previous question's old choice is true
     const isPreviousChoiceCorrect = answers[currentQuestionIndex - 1];
 
-    // Deduct points only if the previous choice is true
     if (isPreviousChoiceCorrect) {
       setPoint(prevPoint => prevPoint - 10);
     }
 
-    // Set the old choice for the current question
     setSelectedAnswer(oldChoice[currentQuestionIndex]);
 
-    // Reset the state for the current question
     setIsAnswerCorrect(false);
 
     setCurrentQuestionIndex(prevIndex => prevIndex - 1);
