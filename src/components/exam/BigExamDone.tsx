@@ -39,7 +39,7 @@ const BigExamDone: React.FC<Props> = props => {
         </View>
         <View style={styles.textcontainer}>
           <Text style={styles.title}>{props.title}</Text>
-          <Text style={styles.subtitle}>{props.subtitle}</Text>
+          <Text style={styles.subtitle}>{props.subtitle} minutes</Text>
         </View>
       </View>
       <View style={styles.rightcompo}>
@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     color: colors.deepBlue,
   },
   subtitle: {
+    color: colors.grey,
     fontSize: 12,
     fontFamily: 'Poppins-Medium',
   },

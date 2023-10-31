@@ -4,6 +4,7 @@ export default colors = {
   deepBlue: '#1E276F',
   lightGrey: '#6a6b7d',
   lightBlue: '#e8eaff',
+  disableColor: '#5962A4',
   lightAbitBlue: '#121953',
   white: '#FBFDFF',
   gold: '#ffd601',
@@ -14,4 +15,5 @@ export default colors = {
   backgroundWhite: '#E8EAF6',
   runTimeColor: '#121953',
   red: '#EF5350',
+  green: '#70e000',
 };

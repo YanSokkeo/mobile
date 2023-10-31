@@ -69,7 +69,8 @@ const Category = () => {
             <BigExamDone
               image={item.imageUrl}
               title={item.title}
-              subtitle={`${item.time} minutes`}
+              // subtitle={`${item.time} minutes`}
+              subtitle={item.time}
               onPress={() => handlePress(item.id, item.time)}
               iconName={'play'}
             />

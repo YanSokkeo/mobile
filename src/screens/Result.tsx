@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   BackHandler,
+  SafeAreaView,
 } from 'react-native';
 import colors from '../../colors';
 import HeaderBackground from '../components/header/HeaderBackground';
@@ -95,7 +96,7 @@ const Result = ({route}: any) => {
   console.log(filteredAnswers);
   //   console.log(answers);
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.navigator}>
         <HeaderBackground
           iconleft="menu"
@@ -141,14 +142,24 @@ const Result = ({route}: any) => {
             </View>
           </ScrollView>
           <View style={styles.controll_button}>
+            {truePercentage >= 70 ? (
+              <Text style={styles.congratsText}>
+                Congratulations, you passed the Test!
+              </Text>
+            ) : (
+              <Text style={styles.falseText}>
+                Try again, you didn't pass the Test!
+              </Text>
+            )}
             <Text style={styles.title}>Passed Point: {point}</Text>
+
             <TouchableOpacity onPress={handleContinue} style={styles.button}>
               <Text style={styles.text_BTN}>Continue</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -174,6 +185,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     textAlign: 'center',
     marginBottom: 10,
+  },
+  congratsText: {
+    fontSize: 18,
+    color: colors.green,
+    fontFamily: 'Poppins-Medium',
+    textAlign: 'center',
+  },
+  falseText: {
+    fontSize: 18,
+    color: colors.red,
+    fontFamily: 'Poppins-Medium',
+    textAlign: 'center',
   },
   text: {
     fontSize: 25,

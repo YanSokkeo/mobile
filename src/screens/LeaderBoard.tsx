@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, ScrollView} from 'react-native';
+import {StyleSheet, Text, View, ScrollView, SafeAreaView} from 'react-native';
 import React from 'react';
 import CustomHeader from '../components/header/CustomHeader';
 import colors from '../../colors';
@@ -10,7 +10,7 @@ import LeaderBoardData from '../components/dummy/LeaderBoardData';
 
 const LeaderBoard = () => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.head}>
         <CustomHeader
           iconleft="menu"
@@ -41,7 +41,7 @@ const LeaderBoard = () => {
           ))}
         </ScrollView>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

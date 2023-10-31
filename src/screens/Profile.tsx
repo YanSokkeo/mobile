@@ -1,11 +1,11 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, SafeAreaView} from 'react-native';
 import React from 'react';
 
 const Profile = () => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text>Profile</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 

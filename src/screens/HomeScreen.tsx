@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   KeyboardAvoidingView,
+  SafeAreaView,
 } from 'react-native';
 import React from 'react';
 import CustomHeader from '../components/header/CustomHeader';
@@ -18,8 +19,8 @@ import ExamDone from '../components/exam/ExamDone';
 
 const HomeScreen = () => {
   return (
-    <ScrollView>
-      <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
         <View style={{flex: 0.1}}>
           <CustomHeader
             iconleft="menu"
@@ -80,8 +81,8 @@ const HomeScreen = () => {
             iconName="check"
           />
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

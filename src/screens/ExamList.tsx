@@ -4,6 +4,7 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
+  SafeAreaView,
 } from 'react-native';
 import React, {useState} from 'react';
 import CustomHeader from '../components/header/CustomHeader';
@@ -22,7 +23,7 @@ const ExamList = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.head}>
         <CustomHeader
           iconleft="menu"
@@ -37,7 +38,7 @@ const ExamList = () => {
         </View>
       </View>
       <Category />
-    </View>
+    </SafeAreaView>
   );
 };
 

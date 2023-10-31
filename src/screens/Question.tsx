@@ -8,6 +8,7 @@ import {
   Button,
   BackHandler,
   ActivityIndicator,
+  SafeAreaView,
 } from 'react-native';
 import PocketBase from 'pocketbase';
 import {client} from '../api/Pocketbase';
@@ -205,13 +206,15 @@ const Question = ({route}: any) => {
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex === TotalQuestion - 1) {
-      setTimeout(() => {
-        navigation.navigate('result', {
-          point: point + (isAnswerCorrect ? 10 : 0),
-          answers: [...answers, isAnswerCorrect],
-          quiz_id: id,
-        });
-      }, 0);
+      setTimeout(
+        () =>
+          navigation.navigate('result', {
+            point: point + (isAnswerCorrect ? 10 : 0),
+            answers: [...answers, isAnswerCorrect],
+            quiz_id: id,
+          }),
+        0,
+      );
       return;
     }
 
@@ -320,7 +323,7 @@ const Question = ({route}: any) => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <HeaderBackground
         iconleft="menu"
         iconfirstRight="menu"
@@ -376,16 +379,17 @@ const Question = ({route}: any) => {
           leftColor={colors.white}
           onPress={handlePrevQuestion}
           disable={currentQuestionIndex >= 0}
-          // disable={currentQuestionIndex == 0}
+          BackGround={colors.disableColor}
         />
         <CustomNextPreview
           text="Next"
           iconRight="chevron-right"
           rightColor={colors.white}
           onPress={handleNextQuestion}
+          BackGround={colors.deepBlue}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
